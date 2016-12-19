@@ -21,5 +21,12 @@ thresholds = (image[:,:,0] < rgb_threshold[0]) \
 
 colour_select[thresholds] = [0,0,0]
 
+plt.figure(1)
+plt.subplot(211)
+plt.title('Input Image')
+plt.imshow(image)
+plt.subplot(212)
+plt.title('After thresholding')
 plt.imshow(colour_select)
+#plt.imshow(thresholds)
 plt.show()
