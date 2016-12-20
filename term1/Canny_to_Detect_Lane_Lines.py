@@ -17,11 +17,6 @@ low_threshold = 50
 #edges = cv2.Canny(gray, low_threshold, high_threshold)
 edges = cv2.Canny(blur_gray, low_threshold, high_threshold)
 
-
-
-
-
-
 plt.subplot(221)
 plt.imshow(image);plt.title("Input Image")
 plt.subplot(222)
