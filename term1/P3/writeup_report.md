@@ -106,6 +106,12 @@ Trimmed Image (80 x 320) ![Trimmed Image](./centre_trimmed.png)
 
 7. Different batch_size and epochs were tried. Final value chosen were batch_size = 240 and epochs = 75.
 
-8. fit_generator is used to 
+8. fit_generator is used to load images into the Training model.
 
 9. The output MSE graph is ![Graph](./30March2017_75_EPOCHS.png)
+
+### Changes to drive.py
+
+1. The PI controller is slightly changed to have increased Kp and Ki values. (drive.py line no:75)
+
+2. Similarly the input image is clipped from 160 x 320 to 80 x 320 and converted from RGB 2 YUV plane. (drive.py line no:65 - 68)
