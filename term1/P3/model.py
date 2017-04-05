@@ -3,7 +3,7 @@ import csv
 
 samples = []
 
-with open('driving_log.csv','r') as fname:
+with open('driving_log_DATA_W_Rec_v1.csv','r') as fname:
     reader = csv.reader(fname)
     for line in reader:
         samples.append(line)
@@ -82,6 +82,13 @@ def generator(samples, batch_size):
                 images.append(np.fliplr(myImage))
                 angles.append(-centre_angle - 0.08)
 
+
+                #images.append(random_noise(centre_image,seed = 40,mode = 's&p', amount = 0.1))
+                #angles.append(centre_angle)
+
+                #images.append(random_noise(np.fliplr(centre_image),seed = 40,mode = 's&p', amount = 0.1))
+                #angles.append(-centre_angle)                
+
             X_train = np.array(images)
             y_train = np.array(angles)
 
@@ -91,6 +98,15 @@ def generator(samples, batch_size):
 train_generator = generator(train_samples, batch_size)
 validation_generator = generator(validation_samples, batch_size)
 
+
+# input image dimensions
+img_rows, img_cols, ch = 160,320,3 # if more than 2 variables then use this way to define(28,)*2
+## number of convolutional filters
+nb_filters = 32
+# size of the pooling area for max pooling
+pool_size = (2,2)
+# convolutional kernel size
+kernel_size = (3,3)
 
 from keras.models import Sequential, load_model
 from keras.layers import Lambda, Cropping2D
@@ -105,6 +121,8 @@ learning_rate = 0.0001
 model_1 = Sequential()
 
 model_1.add(BatchNormalization(momentum=0.9, weights=None, input_shape = (66,200,3)))
+
+#model_1.add(Lambda(lambda x : x/255.0 - 0.5, input_shape = (66,200,3) , output_shape = (66,200,3)))
 
 model_1.add(Convolution2D(24, 5,5, subsample = (2,2),border_mode = 'valid'))
 
@@ -127,12 +145,6 @@ model_1.add(Convolution2D(64,3,3,subsample=(1,1), border_mode = 'valid'))
 model_1.add(Activation('elu'))
 
 model_1.add(Flatten())
-
-model_1.add(Dense(1164))
-
-model_1.add(Activation('elu'))
-
-model_1.add(Dropout(0.5))
 
 model_1.add(Dense(100))
 
@@ -160,7 +172,7 @@ model_1.compile(loss = 'mse',optimizer = Adam(lr = learning_rate, beta_1=0.9, be
 
 history = model_1.fit_generator(generator(train_samples, batch_size),samples_per_epoch = 3 * len(train_samples), validation_data = generator(validation_samples, batch_size),nb_val_samples = 6 * len(validation_samples),nb_epoch = nb_epoch, verbose = 1)
 
-model_1.save('driving_log_30March_V1.0.h5')
+model_1.save('driving_log_4April_V1.0.h5')
 
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
@@ -169,3 +181,6 @@ plt.ylabel('mse loss')
 plt.xlabel('epoch')
 plt.legend(['training set', 'validation set'], loc = 'upper right')
 plt.show()
+#score = model_1.evaluate(X_test, y_test, verbose = 0)
+#print('Test score :', score[0])
+#print('Test accuracy :',score[1])
