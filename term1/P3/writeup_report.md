@@ -50,14 +50,14 @@ Here is my model.summary output:
 |Activation                       |(None, 31, 98, 24)    |0           |convolution2d_1[0][0]           |
 |Convolution2D                    |(None, 14, 47, 36)    |21636       |activation_1[0][0]              |
 |Activation                       |(None, 14, 47, 36)    |0           |convolution2d_2[0][0]           |
-|Convolution2D                    |(None, 6, 23, 48)     |15600       |activation_2[0][0]              |
-|Activation                       |(None, 6, 23, 48)     |0           |convolution2d_3[0][0]           |
-|Convolution2D                    |(None, 4, 21, 64)     |27712       |activation_3[0][0]              |
-|Activation                       |(None, 4, 21, 64)     |0           |convolution2d_4[0][0]           |
-|Convolution2D                    |(None, 2, 19, 64)     |36928       |activation_4[0][0]              |
-|Activation                       |(None, 2, 19, 64)     |0           |convolution2d_5[0][0]           |
-|Flatten                          |(None, 2432)          |0           |activation_5[0][0]              |
-|Dense                            |(None, 100)           |243300      |dropout_1[0][0]                 |
+|Convolution2D                    |(None,  5, 22, 48)    |43248       |activation_2[0][0]              |
+|Activation                       |(None,  5, 22, 48)    |0           |convolution2d_3[0][0]           |
+|Convolution2D                    |(None,  3, 20, 64)    |27712       |activation_3[0][0]              |
+|Activation                       |(None,  3, 20, 64)    |0           |convolution2d_4[0][0]           |
+|Convolution2D                    |(None,  1, 18, 64)    |36928       |activation_4[0][0]              |
+|Activation                       |(None,  1, 18, 64)    |0           |convolution2d_5[0][0]           |
+|Flatten                          |(None, 1152)          |0           |activation_5[0][0]              |
+|Dense                            |(None, 100)           |115300      |dropout_1[0][0]                 |
 |Activation                       |(None, 100)           |0           |dense_2[0][0]                   |
 |Dropout                          |(None, 100)           |0           |activation_7[0][0]              |
 |Dense                            |(None, 50)            |5050        |dropout_2[0][0]                 |
@@ -70,8 +70,8 @@ Here is my model.summary output:
 |Activation                       |(None, 1)             |0           |dense_5[0][0]                   |
 |                                 |                      |            |                                |
 
-Total params: 352,583
-Trainable params: 352,577
+Total params: 252,231
+Trainable params: 252,225
 Non-trainable params: 6
 
 #### 2. Attempts to reduce overfitting in the model
@@ -81,20 +81,22 @@ The model contains dropout layers (4 in total with 50% dropout percent) for ever
 #### 3. Model parameter tuning
 
 The model used an adam optimizer with following parameters:
-learning_rate = 0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0
-Learning Rate was along tuned manually with different values.
+learning_rate = 0.001
+Learning Rate was along tuned manually with different values from 0.00001 to 0.01
 
 #### 4. Appropriate training data
 
-1. Training data was chosen to keep the vehicle driving on the road. Udacity provided data is used and additional data is recorded for recovery and left and right images are used with compensation for the camera angle (+/-0.08).
+1. Training data was chosen to keep the vehicle driving on the road. Udacity provided data is used and additional data is recorded for recovery and left and right images are used with compensation for the camera angle (+/-0.10).
 
 2. The training vs Validation is 90-10 % split and data is shuffled every call.
 
-3. for data augmentation, Images are flipped left to right and steering angle is negated for the same.
+3. for data augmentation, Images are flipped left to right and steering angle is negated for the same.Also random noise(Salt and Pepper) is added with 15% ratio. So every input is augmented and results in 6 images.
 
 4. Image is cropped from on the top and on the bottom to eliminate the sky and car bonnet part.
 
 Centre Image (160 x 320)![Centre Image](./centre.jpg)
+
+Image with Random Noise(Salt and Pepper - 15%) ![Image with Salt and Pepper noise](./centre_noisy.png)
 
 Trimmed Image (80 x 320) ![Trimmed Image](./centre_trimmed.png) 
 
@@ -106,10 +108,15 @@ Trimmed Image (80 x 320) ![Trimmed Image](./centre_trimmed.png)
 
 8. fit_generator is used to load images into the Training model.
 
-9. The output MSE graph is ![Graph](./4April2017_75_EPOCHS.png)
+9. The output MSE graph is ![Graph](./11April2017_30_EPOCHS.png)
 
 ### Changes to drive.py
 
-1. The PI controller is slightly changed to have increased Kp and Ki values. (drive.py line no:75)
+1. Similar to the training image, here the image is clipped from 160 x 320 to 80 x 320 and converted from RGB 2 YUV plane. (drive.py line no:65 - 68)
 
-2. Similarly the input image is clipped from 160 x 320 to 80 x 320 and converted from RGB 2 YUV plane. (drive.py line no:65 - 68)
+### Things to consider while choosing Model and during Training
+
+1. I started with simple CNN models like LeNet5 and likewise, but the accuracy was very poor. After 30 iterations, decided to follow the Nvidia architecture. Even minor changes to architecture like adjusting the Sub-sampling/strides results in significant difference in accuracy and model training duration.
+
+
+2. when it comes to steering angle histogram, i manually plotted the histogram from the CSV file and took the extremes, i.e., values > abs(0.7) and appended it twice, so that the zero steering angle is not overfitting. I tried reducing the zero steering values to adjust the histogram, but that affects the car in straight road, the car was swaying.Appending the large steering angle helps in sharp turns.
